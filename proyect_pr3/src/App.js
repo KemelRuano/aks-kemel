@@ -21,7 +21,7 @@ function App() {
       "Password": password
     };
 
-    fetch('http://localhost:8000/Login', {
+    fetch('http://192.168.0.15:5000/Login', {
       method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
