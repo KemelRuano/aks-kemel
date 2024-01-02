@@ -7,7 +7,7 @@ const config = {
     host: 'localhost',
     user: 'root',
     password: 'mysql',
-    port: 3306
+    port: 4000
 };
 const app = express();
 app.set('port', process.env.PORT || 8000);
