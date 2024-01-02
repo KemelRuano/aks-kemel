@@ -17,12 +17,11 @@ app.use(cors({
 }));
   app.use(express.json());
 
-app.post('/Login', (req, res) => {
+app.post('/login', (req, res) => {
         const jsonData = req.body;
-        console.log(jsonData);
-        const {Nombre , Password  }= jsonData;
-        const sql = 'SELECT COUNT(*) AS credcorrectas FROM KRuano202006373.login WHERE nombre = ? AND password = ?';
-        query(sql, [Nombre, Password])
+        const {Usuario , Password  }= jsonData;
+        const sql = 'SELECT COUNT(*) AS Msg FROM kruano202006373.Usuarios WHERE usuario = ? AND pass = ?';
+        query(sql, [Usuario, Password])
         .then(results => {
             return res.json(results);
         })
@@ -31,6 +30,90 @@ app.post('/Login', (req, res) => {
             return res.json(error);
         });
 });
+
+app.post('/registro', (req, res) => {
+    const jsonData = req.body;
+    const { Usuario, Password , Nombre , Edad } = jsonData;
+    console.log(jsonData);
+
+    const checkUserQuery = 'SELECT COUNT(*) AS Msg FROM kruano202006373.Usuarios WHERE usuario = ?';
+
+    query(checkUserQuery, [Usuario])
+        .then(result => {
+            if (result[0].Msg === 0) {
+                const insertUserQuery = 'INSERT INTO kruano202006373.Usuarios (usuario, pass , nombre, edad) VALUES (?, ?, ?, ?)';
+                return query(insertUserQuery, [Usuario, Password , Nombre , Edad]);
+            } else {
+                return Promise.reject({ Msg: "Ya existe el Usuario" });
+            }
+        })
+        .then(() => {
+            return res.json({ Msg: "Usuario Creado" });
+        })
+        .catch(error => {
+            return res.json(error);
+        });
+});
+
+app.post('/modificar', (req, res) => {
+    const jsonData = req.body;
+    const {Usuario, Password , Nombre , Edad} = jsonData;
+
+    const checkUserQuery = 'SELECT COUNT(*) AS Msg FROM kruano202006373.Usuarios WHERE usuario = ?';
+
+    query(checkUserQuery, [Usuario])
+        .then(result => {
+            if (result[0].Msg > 0) {
+                const updateQuery = 'UPDATE kruano202006373.Usuarios SET pass = ?, nombre = ? ,edad = ?  WHERE usuario = ?';
+                return query(updateQuery, [Password, Nombre , Edad , Usuario]);
+            } else {
+                return Promise.reject({ Msg: "El usuario no existe" });
+            }
+        })
+        .then(() => {
+            return res.json({ Msg: "Usuario modificado exitosamente" });
+        })
+        .catch(error => {
+            return res.json(error);
+        });
+});
+
+
+app.post('/eliminar', (req, res) => {
+    const jsonData = req.body;
+    const { Usuario } = jsonData;
+    const checkUserQuery = 'SELECT COUNT(*) AS Msg FROM kruano202006373.Usuarios WHERE usuario = ?';
+    query(checkUserQuery, [Usuario])
+        .then(result => {
+            if (result[0].Msg > 0) {
+                const deleteQuery = 'DELETE FROM kruano202006373.Usuarios WHERE usuario = ?';
+                return query(deleteQuery, [Usuario]);
+            } else {
+                return Promise.reject({ Msg: "El usuario no existe" });
+            }
+        })
+        .then(() => {
+            return res.json({ Msg: "Usuario eliminado exitosamente" });
+        })
+        .catch(error => {
+            return res.json(error);
+        });
+});
+
+app.post('/search', (req, res) => {
+    const jsonData = req.body;
+    const {Usuario }= jsonData;
+    const sql = 'SELECT * FROM  KRuano202006373.Usuarios WHERE usuario = ?;';
+    query(sql, [Usuario])
+    .then(results => {
+        return res.json(results);
+    })
+    .catch(error => {
+        return res.json(error);
+    });
+});
+
+
 
 async function query(sql, params) {
     const connection = await mysql.createConnection(config);
