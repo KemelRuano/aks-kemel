@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-kruano202006373
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app:  mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      nodeSelector:
+
+      containers:
+        - name: mysql-kruano202006373
+          image: mysql:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+            	secretKeyRef:
+              	name: mysql-pass
+              	key: mysql123
+	    livenessProbe:
+  		tcpSocket:
+    		port: 3306
+	    ports:
+        	- containerPort: 3306
+          	  name: mysql 
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 3306
+  
